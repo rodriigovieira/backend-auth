@@ -91,12 +91,13 @@ router.post('/login', async (req, res) => {
         httpOnly: true,
         sameSite: true,
         maxAge: 1209600000,
-        secure: process.env.NODE_ENV === 'production',
+        secure: false
       })
       .json({
         title: 'Login Successful',
         detail: 'Successfully validated user credentials',
         csrfToken: session.csrfToken,
+        token: session.token
       });
   } catch (err) {
     res.status(401).json({
@@ -168,11 +169,12 @@ router.delete('/me', authenticate, csrfCheck, async (req, res) => {
   }
 });
 
-router.put('/logout', authenticate, csrfCheck, async (req, res) => {
+router.put('/logout', authenticate, async (req, res) => {
   try {
     const { session } = req;
     await session.expireToken(session.token);
     res.clearCookie('token');
+    console.log(session)
 
     res.json({
       title: 'Logout Successful',
